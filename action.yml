@@ -1,0 +1,27 @@
+name: 'PR Branch Name Checker'
+description: 'Check PRs for their branch name and block'
+branding:
+  icon: "alert-triangle"
+  color: yellow
+inputs:
+  ref:
+    description: 'the branch name or sha to check for'
+    required: true
+    default: ${{ github.ref.name }}
+runs:
+  using: composite
+  steps:
+    - name: Check for ref
+      id: check-for-ref
+      run: grep -ir '${{ inputs.ref }}' --exclude-dir=.git
+      shell: bash
+      continue-on-error: true
+    - name: if no ref exists, success
+      if: ${{ steps.check-for-ref.outcome == 'success' }}
+      run: echo "Success"
+      shell: bash
+    - name: if ref exists, fail
+      if: ${{ steps.check-for-ref.outcome == 'failure' }}
+      run: echo "failure" 
+      shell: bash
+
